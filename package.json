@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Drew DeCarme (drewdecarme@gmail.com)",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "scripts": {
     "bundle": "esbuild src/services/** --outdir=services --format=cjs --target=esnext",
     "bundle-swc": "swc src -d .",
@@ -12,11 +16,15 @@
     "build:ci": "yarn bundle",
     "prepare": "yarn build",
     "dev": "yarn bundle --watch",
-    "test": "jest"
+    "test": "jest",
+    "package": "yarn build && yarn np"
   },
   "peerDependencies": {
     "medusa-interfaces": "1.x"
   },
+  "files": [
+    "services"
+  ],
   "devDependencies": {
     "@types/formidable": "^2.0.3",
     "chokidar": "^3.5.2",
@@ -36,6 +44,7 @@
     "medusa-interfaces": "^1.1.32",
     "medusa-test-utils": "^1.1.36",
     "node-fetch": "2.6.6",
+    "np": "^7.6.0",
     "regenerator-runtime": "^0.13.9",
     "typeorm": "^0.2.41"
   },
