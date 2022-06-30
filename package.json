@@ -11,6 +11,7 @@
   "scripts": {
     "build": "swc src -d . -C module.type=commonjs",
     "dev": "yarn build --watch",
+    "test": "echo 'No tests... huzzah!'",
     "package": "yarn build && yarn np --no-tests --no-yarn",
     "publish": "yarn dlx np"
   },
