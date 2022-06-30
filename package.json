@@ -6,13 +6,14 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public",
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "build": "swc src -d . -C module.type=commonjs",
     "dev": "yarn build --watch",
     "test": "jest",
-    "package": "yarn build && yarn np --no-tests --no-yarn"
+    "package": "yarn build && yarn np --no-tests --no-yarn",
+    "publish": "yarn dlx np"
   },
   "files": [
     "services"
