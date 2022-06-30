@@ -1133,6 +1133,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-fetch@npm:^2.6.2":
+  version: 2.6.2
+  resolution: "@types/node-fetch@npm:2.6.2"
+  dependencies:
+    "@types/node": "*"
+    form-data: ^3.0.0
+  checksum: 6f73b1470000d303d25a6fb92875ea837a216656cb7474f66cdd67bb014aa81a5a11e7ac9c21fe19bee9ecb2ef87c1962bceeaec31386119d1ac86e4c30ad7a6
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 18.0.0
   resolution: "@types/node@npm:18.0.0"
@@ -3681,6 +3691,7 @@ __metadata:
     "@swc/cli": ^0.1.57
     "@swc/core": ^1.2.207
     "@types/formidable": ^2.0.3
+    "@types/node-fetch": ^2.6.2
     chokidar: ^3.5.2
     client-sessions: ^0.8.0
     cross-env: ^7.0.3
