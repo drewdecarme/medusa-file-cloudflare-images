@@ -1,10 +1,8 @@
-import fs from "fs";
+import { createReadStream } from "fs";
 
 import FormData from "form-data";
-// @ts-ignore
 import { FileService } from "medusa-interfaces";
 import fetch from "node-fetch";
-import qs from "query-string";
 
 type Options = {
   baseUrl?: string;
@@ -65,18 +63,22 @@ class CloudflareImagesService extends FileService {
     this.apiToken = options.apiToken;
   }
 
-  private cfUrl(): string {
+  private cloudflareApiUrl(): string {
     if (!this.accountId) {
       throw new Error("Must include a cloudflare account ID");
     }
     return `${this.baseUrl}${this.version}/accounts/${this.accountId}/images/v1`;
   }
 
+  /**
+   * The super types are wrong
+   */
+  // @ts-ignore
   async upload(file: UploadFile) {
-    const url = this.cfUrl();
+    const url = this.cloudflareApiUrl();
 
-    const image = fs.createReadStream(file.path);
-    var data = new FormData();
+    const image = createReadStream(file.path);
+    const data = new FormData();
     data.append("file", image);
 
     const uploadRequest = fetch(url, {
@@ -110,11 +112,14 @@ class CloudflareImagesService extends FileService {
     });
   }
 
+  /**
+   * The super types are wrong
+   */
+  // @ts-ignore
   delete(fileUrl: string) {
-    const requestUrl = this.cfUrl();
-    const fileQueryString = fileUrl.split("?")[1];
-    const parsedFileUrl = qs.parse(fileQueryString);
-    const imageId = parsedFileUrl[ImageParams.CF_IMAGE_ID];
+    const requestUrl = this.cloudflareApiUrl();
+    const fileUrlSearchParams = new URL(fileUrl).searchParams;
+    const imageId = fileUrlSearchParams.get(ImageParams.CF_IMAGE_ID);
 
     return new Promise((resolve, reject) => {
       if (!imageId) {
