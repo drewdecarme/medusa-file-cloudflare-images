@@ -1,6 +1,6 @@
 {
   "name": "medusa-file-cloudflare-images",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Cloudflare images file connector for Medusa Commerce applications",
   "author": "Drew DeCarme (drewdecarme@gmail.com.com)",
   "license": "MIT",
