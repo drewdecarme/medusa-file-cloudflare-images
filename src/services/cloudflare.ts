@@ -9,6 +9,8 @@ type Options = {
   version?: string;
   accountId: string;
   apiToken: string;
+  accountHash?: string;
+  serveFromCloudflareDomain?: string;
 };
 
 type UploadFile = {
@@ -53,6 +55,8 @@ class CloudflareImagesService extends FileService {
   version?: string;
   accountId: string;
   apiToken: string;
+  accountHash?: string;
+  serveFromCloudflareDomain?: string;
 
   constructor({}, options: Options) {
     super();
@@ -61,13 +65,38 @@ class CloudflareImagesService extends FileService {
     this.version = options.version || "v4";
     this.accountId = options.accountId;
     this.apiToken = options.apiToken;
+    this.accountHash = options.accountHash;
+    this.serveFromCloudflareDomain = options.serveFromCloudflareDomain;
   }
 
-  private cloudflareApiUrl(): string {
+  private getUploadUrl(): string {
     if (!this.accountId) {
       throw new Error("Must include a cloudflare account ID");
     }
     return `${this.baseUrl}${this.version}/accounts/${this.accountId}/images/v1`;
+  }
+
+  private getImageDeliveryUrl(cfUploadRes: UploadResponse["result"]): string {
+    const imageId = cfUploadRes.id;
+    const variantUrl = cfUploadRes.variants[0];
+    const urlSearchQuery = `?${ImageParams.CF_IMAGE_ID}=${imageId}`;
+
+    if (!this.serveFromCloudflareDomain) {
+      return `${variantUrl}${urlSearchQuery}`;
+    }
+
+    if (!this.accountHash) {
+      throw new Error(
+        `You have elected to serve the images from a custom cloudflare domain, but you have not added an "accountHash".
+Go back to your medusa config and add the option "accountHash".
+You can find the account hash in the Cloudflare images dashboard under "Developer Resources".`
+      );
+    }
+
+    const variantUrlParts = cfUploadRes.variants[0].split("/");
+    const variantName = variantUrlParts[variantUrlParts.length - 1];
+
+    return `https://${this.serveFromCloudflareDomain}/cdn-cgi/imagedelivery/${this.accountHash}/${imageId}/${variantName}`;
   }
 
   /**
@@ -75,13 +104,13 @@ class CloudflareImagesService extends FileService {
    */
   // @ts-ignore
   async upload(file: UploadFile) {
-    const url = this.cloudflareApiUrl();
+    const uploadUrl = this.getUploadUrl();
 
     const image = createReadStream(file.path);
     const data = new FormData();
     data.append("file", image);
 
-    const uploadRequest = fetch(url, {
+    const uploadRequest = fetch(uploadUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiToken}`,
@@ -98,9 +127,8 @@ class CloudflareImagesService extends FileService {
         .then((json) => {
           const data = json as UploadResponse;
           if (data.success) {
-            resolve({
-              url: `${data.result.variants[0]}?${ImageParams.CF_IMAGE_ID}=${data.result.id}`,
-            });
+            const url = this.getImageDeliveryUrl(data.result);
+            resolve({ url });
           }
           if (data.errors.length > 0) {
             reject(data.errors[0]);
@@ -117,7 +145,7 @@ class CloudflareImagesService extends FileService {
    */
   // @ts-ignore
   delete(fileUrl: string) {
-    const requestUrl = this.cloudflareApiUrl();
+    const requestUrl = this.getUploadUrl();
     const fileUrlSearchParams = new URL(fileUrl).searchParams;
     const imageId = fileUrlSearchParams.get(ImageParams.CF_IMAGE_ID);
 
